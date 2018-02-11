@@ -1,0 +1,6 @@
+resolver: lts-8.15
+allow-different-user: true
+
+extra-deps:
+
+flags: {}
