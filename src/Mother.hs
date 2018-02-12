@@ -9,7 +9,7 @@ module Mother
   , Step (..)
   , Config (..)
 
-  , parent
+  , call
   , parse
   ) where
 
@@ -18,7 +18,7 @@ import           Control.Monad.Trans       (liftIO)
 import qualified Data.Aeson                as JSON
 import qualified Data.ByteString           as BS
 import qualified Data.ByteString.Lazy      as BS.L
-import           Data.Text                 as Tx
+import qualified Data.Text                 as Tx
 import           Data.Void
 import qualified Data.Yaml                 as Y
 import           Data.Yaml                 ((.:), (.:?))
@@ -74,7 +74,8 @@ instance Y.FromJSON Step where
 
 data Config
   = Config
-      { steps :: [Step]
+      { statusChecks :: [Tx.Text]
+      , steps        :: [Step]
       -- , frequency :: Int
       }
 
@@ -83,13 +84,18 @@ data Config
 instance Y.FromJSON Config where
   parseJSON (Y.Object v)
     =   Config
-    <$> v .: "steps"
+    <$> v .: "status_checks"
+    <*> v .: "steps"
 
   parseJSON _
     = fail "Missing parameter for config"
 
 config :: BS.ByteString
 config = [r|
+status_checks:
+  - https://google.com
+  - https://habito.com
+  - https://yahoo.com
 steps:
   - title: Check google up
     method: GET
@@ -109,8 +115,15 @@ parse :: Maybe Config
 parse
   = Y.decode config
 
-parent :: Session -> Step -> IO (Either String Int)
-parent session (Step title method url body)
+call
+  :: Session
+  -> Tx.Text
+  -> Method
+  -> Tx.Text
+  -> Maybe JSON.Object
+  -> IO (Either String Int)
+
+call session title method url body
   = do
       let sUrl = Tx.unpack url
 

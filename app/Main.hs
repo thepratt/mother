@@ -1,14 +1,17 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Main where
 
-import Control.Monad
-import Control.Monad.Trans
-import Data.Traversable
-import Data.Void
+import qualified Mother               as M
+
+import           Control.Monad
+import           Control.Monad.Trans
+import           Data.Traversable
+import qualified Data.Text            as Tx
+import           Data.Void
 import qualified Network.Wreq.Session as HTTP.S
-
--- import Control.Monad.IO.Class (liftIO)
-
-import qualified Mother as M
 
 main :: IO ()
 main
@@ -17,11 +20,17 @@ main
 
       case config of
         Nothing               -> liftIO $ print "I have nothing to do!"
-        Just (M.Config steps) ->
-          HTTP.S.withSession $ \session ->
+        Just M.Config{..} ->
+          HTTP.S.withSession $ \session -> do
             void $
-              traverse (\s@(M.Step title _ _ _) -> do
-                res <- M.parent session s
+              traverse (\url -> do
+                res <- M.call session (Tx.append "Check status of " url) M.GET url Nothing
+                print res
+              ) statusChecks
+
+            void $
+              traverse (\M.Step{..} -> do
+                res <- M.call session title method url body
                 print res
               ) steps
 
