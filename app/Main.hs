@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -7,22 +8,38 @@ module Main where
 
 import qualified Mother               as M
 
-import           Control.Monad
-import           Control.Monad.Trans
+import           Control.Monad        (void)
+import           Control.Monad.Trans  (liftIO)
 import qualified Data.ByteString      as BS
-import           Data.Traversable
 import qualified Data.Text            as Tx
-import           Data.Void
 import qualified Network.Wreq.Session as HTTP.S
-import           Text.RawString.QQ
+import qualified System.Exit          as Sys.Ex
+import qualified System.Environment   as Sys.Env
 
 main :: IO ()
 main
+  = Sys.Env.getArgs >>= parseArgs >>= BS.readFile >>= run
+
+parseArgs :: [String] -> IO String
+parseArgs
+  = \case
+      ["-h"] -> usage >> exit
+      [f]    -> pure f
+      _      -> usage >> exit
+  where
+    usage
+      = putStrLn "Usage: mother -- [file]"
+
+    exit
+      = Sys.Ex.exitWith Sys.Ex.ExitSuccess
+
+run :: BS.ByteString -> IO ()
+run config
   = do
       config <- pure $ M.parse config
 
       case config of
-        Nothing               -> liftIO $ print "I have nothing to do!"
+        Nothing           -> liftIO $ print "I have nothing to do!"
         Just M.Config{..} ->
           HTTP.S.withSession $ \session -> do
             void $
@@ -38,24 +55,3 @@ main
               ) steps
 
       print "Happy mother?!"
-
-config :: BS.ByteString
-config = [r|
-status_checks:
-  - https://google.com
-  - https://habito.com
-  - https://yahoo.com
-steps:
-  - title: Check google up
-    method: GET
-    url: https://google.com
-  - title: Check google can thingo
-    method: POST
-    url: https://google.com
-    body:
-      thingo: 2
-      important_information:
-        - 1
-        - 2
-        - 3
-|]

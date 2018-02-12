@@ -1,0 +1,17 @@
+status_checks:
+  - https://google.com
+  - https://habito.com
+  - https://yahoo.com
+steps:
+  - title: Check google up
+    method: GET
+    url: https://google.com
+  - title: Check google can thingo
+    method: POST
+    url: https://google.com
+    body:
+      thingo: 2
+      important_information:
+        - 1
+        - 2
+        - 3

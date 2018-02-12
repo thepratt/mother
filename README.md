@@ -11,7 +11,7 @@ Monitor user stories in production on a rolling basis - as a cron would.
 
 ## Upcoming
 * request authentication
-* externalize yaml configuration
+* ~externalize yaml configuration~
 * proper left side errors
 * alert webhook (i.e. slack) on story/step failure
 * condition checking on response
