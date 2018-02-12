@@ -32,6 +32,11 @@ dependencies:
 
 library:
   source-dirs: src
+  ghc-options:
+    - -Wall
+    - -Werror
+  exposed-modules:
+    - Mother
 
 executables:
   mother:
