@@ -6,8 +6,7 @@ Proper readme coming soon.
 Monitor user stories in production on a rolling basis - as a cron would.
 
 ## Usage
-1. modify `config`
-2. `./mother`
+See [mother-example](https://github.com/thepratt/mother/tree/master/mother-example)
 
 ## Upcoming
 * request authentication
