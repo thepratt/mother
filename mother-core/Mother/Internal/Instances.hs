@@ -34,8 +34,9 @@ instance Y.FromJSON Step where
 instance Y.FromJSON Config where
   parseJSON (Y.Object v)
     =   Config
-    <$> v .: "status_checks"
-    <*> v .: "steps"
+    <$> v .: "schedule"
+    <*> v .: "health_checks"
+    <*> v .: "user_story_steps"
 
   parseJSON _
     = fail "Missing parameter for config"

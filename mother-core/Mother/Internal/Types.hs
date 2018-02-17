@@ -3,7 +3,6 @@ module Mother.Internal.Types where
 import qualified Data.Aeson as JSON
 import qualified Data.Text  as Tx
 
-
 data Method
   = GET
   | POST
@@ -13,19 +12,21 @@ data Method
 
 data Step
   = Step
-      { title  :: Tx.Text
-      , method :: Method
-      , url    :: Tx.Text
-      , body   :: Maybe JSON.Object
+      { sTitle  :: Tx.Text
+      , sMethod :: Method
+      , sUrl    :: Tx.Text
+      , sBody   :: Maybe JSON.Object
       }
 
   deriving (Eq, Show)
 
+type Schedule = Tx.Text
+
 data Config
   = Config
-      { statusChecks :: [Tx.Text]
-      , steps        :: [Step]
-      -- , frequency :: Int
+      { cSchedule       :: Schedule
+      , cHealthChecks   :: [Tx.Text]
+      , cUserStorySteps :: [Step]
       }
 
   deriving (Eq, Show)

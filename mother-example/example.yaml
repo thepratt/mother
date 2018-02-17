@@ -1,8 +1,9 @@
-status_checks:
+schedule: "*/15 * * * *"
+health_checks:
   - https://google.com
   - https://habito.com
   - https://yahoo.com
-steps:
+user_story_steps:
   - title: Check google up
     method: GET
     url: https://google.com

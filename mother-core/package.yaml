@@ -12,10 +12,12 @@ dependencies:
 - base >= 4.7 && < 5
 - aeson
 - bytestring
+- cron
 - http-client
 - http-types
 - mtl
 - text
+- time
 - raw-strings-qq
 - wreq
 - yaml

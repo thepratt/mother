@@ -26,15 +26,15 @@ call
 
 call session _title _method _url _body
   = do
-      let sUrl = Tx.unpack _url
+      let url = Tx.unpack _url
           jb   = JSON.toJSON _body
 
       print _title
       (Right <$> do
         req <- case _method of
-          GET  -> get session  sUrl
-          POST -> post session  sUrl jb
-          PUT  -> put session  sUrl jb
+          GET  -> get session  url
+          POST -> post session  url jb
+          PUT  -> put session  url jb
 
         pure $ statusCode $ responseStatus req)
       `E.catch` handler

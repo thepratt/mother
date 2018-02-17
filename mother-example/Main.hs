@@ -2,7 +2,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE QuasiQuotes #-}
 
 module Main where
 
@@ -11,8 +10,6 @@ import qualified Mother               as M
 import           Control.Monad        (void)
 import           Control.Monad.Trans  (liftIO)
 import qualified Data.ByteString      as BS
-import qualified Data.Text            as Tx
-import qualified Network.Wreq.Session as HTTP.S
 import qualified System.Exit          as Sys.Ex
 import qualified System.Environment   as Sys.Env
 
@@ -39,19 +36,8 @@ run config
       cfg <- pure $ M.parse config
 
       case cfg of
-        Nothing           -> liftIO $ putStrLn "I have nothing to do!"
-        Just M.Config{..} ->
-          HTTP.S.withSession $ \session -> do
-            void $
-              traverse (\url -> do
-                res <- M.call session (Tx.append "Check status of " url) M.GET url Nothing
-                print res
-              ) statusChecks
+        Nothing -> liftIO $ putStrLn "I have nothing to do!"
+        Just c  -> M.schedule [c]
 
-            void $
-              traverse (\M.Step{..} -> do
-                res <- M.call session title method url body
-                print res
-              ) steps
-
-      putStrLn "Happy mother?!"
+      void $ liftIO getChar
+      putStrLn "Exiting."

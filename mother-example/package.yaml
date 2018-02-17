@@ -13,6 +13,7 @@ dependencies:
 - bytestring
 - mtl
 - text
+- time
 - wreq
 
 executables:

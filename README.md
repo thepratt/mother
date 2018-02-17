@@ -17,6 +17,6 @@ Monitor user stories in production on a rolling basis - as a cron would.
 * condition checking on response
 * user stories via directory (re-usable !inlcude for story definitions)
 * passable context from previous requests
-* change binary to run forever, self-invoking on defined frequency
+* ~change binary to run forever, self-invoking on defined frequency~
 * persist analytics surrounding history of requests
 * API to expose persisted data - graphs
