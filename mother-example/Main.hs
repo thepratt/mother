@@ -36,10 +36,10 @@ parseArgs
 run :: BS.ByteString -> IO ()
 run config
   = do
-      config <- pure $ M.parse config
+      cfg <- pure $ M.parse config
 
-      case config of
-        Nothing           -> liftIO $ print "I have nothing to do!"
+      case cfg of
+        Nothing           -> liftIO $ putStrLn "I have nothing to do!"
         Just M.Config{..} ->
           HTTP.S.withSession $ \session -> do
             void $
@@ -54,4 +54,4 @@ run config
                 print res
               ) steps
 
-      print "Happy mother?!"
+      putStrLn "Happy mother?!"

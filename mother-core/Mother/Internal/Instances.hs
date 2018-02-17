@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Mother.Internal.Instances where
 
 import Mother.Internal.Types
@@ -13,6 +15,7 @@ instance Y.FromJSON Method where
         "GET"    -> pure GET
         "POST"   -> pure POST
         "PUT"    -> pure PUT
+        _        -> fail "Invalid method"
 
   parseJSON _
     = fail "Invalid method value"

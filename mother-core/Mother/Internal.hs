@@ -8,5 +8,5 @@ module Mother.Internal
   ) where
 
 import Mother.Internal.Types
-import Mother.Internal.Instances
+import Mother.Internal.Instances ()
 import Mother.Internal.Operations

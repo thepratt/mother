@@ -1,6 +1,16 @@
 resolver: lts-8.15
 allow-different-user: true
 
+image:
+  containers:
+    - name: mother-example
+      executables:
+        - mother-example
+
+packages:
+  - location: mother-core
+  - location: mother-example
+
 extra-deps:
 
 flags: {}

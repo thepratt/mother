@@ -1,0 +1,29 @@
+name: mother-core
+version: 0.1.0.0
+github: "thepratt/mother"
+license: BSD3
+author: "Sam Pratt"
+maintainer: "samj.pratt@gmail.com"
+copyright: "2018 Sam Pratt"
+
+description: Please see the README on Github at <https://github.com/thepratt/mother#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- bytestring
+- http-client
+- http-types
+- mtl
+- text
+- raw-strings-qq
+- wreq
+- yaml
+
+library:
+  source-dirs: .
+  ghc-options:
+    - -Wall
+    - -Werror
+  exposed-modules:
+    - Mother

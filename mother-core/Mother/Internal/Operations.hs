@@ -1,18 +1,13 @@
 module Mother.Internal.Operations where
 
 import Mother.Internal.Types
-import Mother.Internal.Instances
-
+import Mother.Internal.Instances ()
 
 import qualified Control.Exception         as E
 import qualified Data.Aeson                as JSON
 import qualified Data.ByteString           as BS
 import qualified Data.Text                 as Tx
 import qualified Data.Yaml                 as Y
-import           Network.Wreq              hiding (
-                                             get, post, put,
-                                             delete, statusCode,
-                                             responseStatus)
 import           Network.HTTP.Client
 import           Network.HTTP.Types.Status
 import           Network.Wreq.Session
@@ -29,16 +24,17 @@ call
   -> Maybe JSON.Object
   -> IO (Either String Int)
 
-call session title method url body
+call session _title _method _url _body
   = do
-      let sUrl = Tx.unpack url
+      let sUrl = Tx.unpack _url
+          jb   = JSON.toJSON _body
 
-      print title
+      print _title
       (Right <$> do
-        req <- case method of
+        req <- case _method of
           GET  -> get session  sUrl
-          POST -> post session  sUrl (JSON.toJSON body)
-          PUT  -> put session  sUrl (JSON.toJSON body)
+          POST -> post session  sUrl jb
+          PUT  -> put session  sUrl jb
 
         pure $ statusCode $ responseStatus req)
       `E.catch` handler
