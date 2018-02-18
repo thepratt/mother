@@ -2,8 +2,11 @@ module Mother.Internal
   ( Method (..)
   , Step (..)
   , Config (..)
+  , RequestFailure (..)
+  , ErrorOrStatusResponse
 
   , call
+  , loggableCall
   , parse
   ) where
 

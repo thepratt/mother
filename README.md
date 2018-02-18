@@ -11,7 +11,7 @@ See [mother-example](https://github.com/thepratt/mother/tree/master/mother-examp
 ## Upcoming
 * request authentication
 * ~externalize yaml configuration~
-* proper left side errors
+* ~proper left side errors~
 * alert webhook (i.e. slack) on story/step failure
 * condition checking on response
 * user stories via directory (re-usable !inlcude for story definitions)

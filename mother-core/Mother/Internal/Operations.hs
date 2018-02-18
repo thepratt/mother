@@ -1,7 +1,11 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Mother.Internal.Operations where
 
 import Mother.Internal.Types
 import Mother.Internal.Instances ()
+import Mother.Logger
 
 import qualified Control.Exception         as E
 import qualified Data.Aeson                as JSON
@@ -22,22 +26,36 @@ call
   -> Method
   -> Tx.Text
   -> Maybe JSON.Object
-  -> IO (Either String Int)
+  -> IO ErrorOrStatusResponse
 
-call session _title _method _url _body
+call sess _ mtd url body
   = do
-      let url = Tx.unpack _url
-          jb   = JSON.toJSON _body
+      let u  = Tx.unpack url
+          jb = JSON.toJSON body
 
-      print _title
-      (Right <$> do
-        req <- case _method of
-          GET  -> get session  url
-          POST -> post session  url jb
-          PUT  -> put session  url jb
+      Right <$> do
+        res <- case mtd of
+          GET  -> get sess u
+          POST -> post sess u jb
+          PUT  -> put sess u jb
 
-        pure $ statusCode $ responseStatus req)
+        pure $ responseStatus res
       `E.catch` handler
   where
-    handler :: HttpException -> IO (Either String Int)
-    handler _ = pure $ Left "Shit broke man"
+    handler :: HttpException -> IO (Either RequestFailure Status)
+    handler =
+      \case
+        HttpExceptionRequest _ cxt  -> pure $ Left $ RequestFailed cxt
+        InvalidUrlException fUrl why -> pure $ Left $ InvalidUrl (Tx.pack fUrl) (Tx.pack why)
+
+loggableCall
+  :: Loggable
+  -> Session
+  -> Tx.Text
+  -> Method
+  -> Tx.Text
+  -> Maybe JSON.Object
+  -> IO ErrorOrStatusResponse
+
+loggableCall lg sess title mtd url body
+  = lg =<< call sess title mtd url body

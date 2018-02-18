@@ -1,7 +1,9 @@
 module Mother.Internal.Types where
 
-import qualified Data.Aeson as JSON
-import qualified Data.Text  as Tx
+import qualified Data.Aeson                as JSON
+import qualified Data.Text                 as Tx
+import           Network.HTTP.Client       (HttpExceptionContent)
+import           Network.HTTP.Types.Status (Status)
 
 data Method
   = GET
@@ -30,3 +32,12 @@ data Config
       }
 
   deriving (Eq, Show)
+
+data RequestFailure
+  = RequestFailed HttpExceptionContent
+  | InvalidUrl Tx.Text Tx.Text
+
+  deriving (Show)
+
+type ErrorOrStatusResponse
+  = Either RequestFailure Status

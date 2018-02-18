@@ -3,6 +3,7 @@ health_checks:
   - https://google.com
   - https://habito.com
   - https://yahoo.com
+  - 127.0.0.1:8888
 user_story_steps:
   - title: Check google up
     method: GET

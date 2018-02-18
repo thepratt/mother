@@ -5,13 +5,13 @@
 
 module Main where
 
-import qualified Mother               as M
+import qualified Mother              as M
 
-import           Control.Monad        (void)
-import           Control.Monad.Trans  (liftIO)
-import qualified Data.ByteString      as BS
-import qualified System.Exit          as Sys.Ex
-import qualified System.Environment   as Sys.Env
+import           Control.Monad       (void)
+import           Control.Monad.Trans (liftIO)
+import qualified Data.ByteString     as BS
+import qualified System.Exit         as Sys.Ex
+import qualified System.Environment  as Sys.Env
 
 main :: IO ()
 main
@@ -37,7 +37,8 @@ run config
 
       case cfg of
         Nothing -> liftIO $ putStrLn "I have nothing to do!"
-        Just c  -> M.schedule [c]
+        Just c  -> M.schedule M.logFailure [c]
 
+      putStrLn "Press any key to exit."
       void $ liftIO getChar
       putStrLn "Exiting."

@@ -6,50 +6,32 @@ module Mother.Queue
 
 import Mother.Internal.Types
 import Mother.Internal.Operations
+import Mother.Logger
 
 import           Control.Monad        (void)
 import qualified Data.Text            as Tx
-import qualified Data.Time            as T
 import qualified Network.Wreq.Session as HTTP.S
 import qualified System.Cron          as Sys.C
 
-schedule :: [Config] -> IO ()
-schedule config
+schedule :: Loggable -> [Config] -> IO ()
+schedule lg config
   = sequence_ $ queue <$> config
   where
     queue Config{..}
       = void $ Sys.C.execSchedule $ do
           let sh = Tx.unpack cSchedule
 
-          Sys.C.addJob (healthCheckJob cHealthChecks) sh
-          Sys.C.addJob (userStoriesJob cUserStorySteps) sh
+          Sys.C.addJob (healthCheckJob lg cHealthChecks) sh
+          Sys.C.addJob (userStoriesJob lg cUserStorySteps) sh
 
-healthCheckJob :: [Tx.Text] -> IO ()
-healthCheckJob b
-  = void $ do
-      now <- T.getCurrentTime
+healthCheckJob :: Loggable -> [Tx.Text] -> IO ()
+healthCheckJob lg b
+  = void $ HTTP.S.withSession $ \sess ->
+      traverse (\url ->
+        loggableCall lg sess url GET url Nothing) b
 
-      putStrLn $ concat
-        [ "["
-        , show now
-        , "] :: "
-        , "Running health checks"
-        ]
-
-      HTTP.S.withSession $ \sess ->
-        traverse (\url -> call sess url GET url Nothing) b
-
-userStoriesJob :: [Step] -> IO ()
-userStoriesJob b
-  = void $ do
-      now <- T.getCurrentTime
-
-      putStrLn $ concat
-        [ "["
-        , show now
-        , "] :: "
-        , "Running user stories"
-        ]
-
-      HTTP.S.withSession $ \sess ->
-        traverse (\Step{..} -> call sess sTitle sMethod sUrl sBody) b
+userStoriesJob :: Loggable -> [Step] -> IO ()
+userStoriesJob lg b
+  = void $ HTTP.S.withSession $ \sess ->
+      traverse (\Step{..} ->
+        loggableCall lg sess sTitle sMethod sUrl sBody) b
