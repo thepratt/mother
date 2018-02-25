@@ -18,20 +18,27 @@ schedule lg config
   = sequence_ $ queue <$> config
   where
     queue Config{..}
-      = void $ Sys.C.execSchedule $ do
-          let sh = Tx.unpack cSchedule
+      = do
+          tk <- maybe (pure Nothing)
+            (\(BearerAuthentication BearerAuthenticationContent{..}) ->
+              authenticate bacUrl bacBody bacAccessKey
+            )
+            cAuthentication
 
-          Sys.C.addJob (healthCheckJob lg cHealthChecks) sh
-          Sys.C.addJob (userStoriesJob lg cUserStorySteps) sh
+          void $ Sys.C.execSchedule $ do
+            let sh = Tx.unpack cSchedule
+
+            Sys.C.addJob (healthCheckJob lg cHealthChecks) sh
+            Sys.C.addJob (userStoriesJob lg tk cUserStorySteps) sh
 
 healthCheckJob :: Loggable -> [Tx.Text] -> IO ()
 healthCheckJob lg b
   = void $ HTTP.S.withSession $ \sess ->
       traverse (\url ->
-        loggableCall lg sess url GET url Nothing) b
+        loggableCall lg sess Nothing GET url Nothing) b
 
-userStoriesJob :: Loggable -> [Step] -> IO ()
-userStoriesJob lg b
+userStoriesJob :: Loggable -> Maybe Tx.Text -> [Step] -> IO ()
+userStoriesJob lg tk b
   = void $ HTTP.S.withSession $ \sess ->
       traverse (\Step{..} ->
-        loggableCall lg sess sTitle sMethod sUrl sBody) b
+        loggableCall lg sess tk sMethod sUrl sBody) b

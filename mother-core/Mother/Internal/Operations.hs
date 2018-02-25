@@ -8,12 +8,17 @@ import Mother.Internal.Instances ()
 import Mother.Logger
 
 import qualified Control.Exception         as E
+import           Control.Lens              ((^?), (&), (?~))
 import qualified Data.Aeson                as JSON
+import qualified Data.Aeson.Lens           as JSON.L
 import qualified Data.ByteString           as BS
 import qualified Data.Text                 as Tx
+import qualified Data.Text.Encoding        as Tx
 import qualified Data.Yaml                 as Y
-import           Network.HTTP.Client
+import           Network.HTTP.Client       hiding (responseBody)
 import           Network.HTTP.Types.Status
+import qualified Network.Wreq              as Wq
+import           Network.Wreq              hiding (getWith, post, postWith, putWith, responseStatus)
 import           Network.Wreq.Session
 
 parse :: BS.ByteString -> Maybe Config
@@ -22,22 +27,25 @@ parse
 
 call
   :: Session
-  -> Tx.Text
+  -> Maybe Tx.Text
   -> Method
-  -> Tx.Text
+  -> Url
   -> Maybe JSON.Object
   -> IO ErrorOrStatusResponse
 
-call sess _ mtd url body
+call sess token mtd url body
   = do
-      let u  = Tx.unpack url
-          jb = JSON.toJSON body
+      let u    = Tx.unpack url
+          jb   = JSON.toJSON body
+          opts = case token of
+            Just t  -> defaults & auth ?~ oauth2Bearer (Tx.encodeUtf8 t)
+            Nothing -> defaults
 
       Right <$> do
         res <- case mtd of
-          GET  -> get sess u
-          POST -> post sess u jb
-          PUT  -> put sess u jb
+          GET  -> getWith opts sess u
+          POST -> postWith opts sess u jb
+          PUT  -> putWith opts sess u jb
 
         pure $ responseStatus res
       `E.catch` handler
@@ -51,11 +59,17 @@ call sess _ mtd url body
 loggableCall
   :: Loggable
   -> Session
-  -> Tx.Text
+  -> Maybe Tx.Text
   -> Method
-  -> Tx.Text
+  -> Url
   -> Maybe JSON.Object
   -> IO ErrorOrStatusResponse
 
-loggableCall lg sess title mtd url body
-  = lg =<< call sess title mtd url body
+loggableCall lg sess token mtd url body
+  = lg =<< call sess token mtd url body
+
+authenticate :: Url -> JSON.Object -> Tx.Text -> IO (Maybe Tx.Text)
+authenticate url body accessKey
+  = do
+      req <- Wq.post (Tx.unpack url) (JSON.toJSON body)
+      pure $ req ^? responseBody . JSON.L.key accessKey . JSON.L._String

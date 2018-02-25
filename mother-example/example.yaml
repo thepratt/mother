@@ -4,6 +4,14 @@ health_checks:
   - https://habito.com
   - https://yahoo.com
   - 127.0.0.1:8888
+authentication:
+  bearer:
+    url: https://somewhere-secure.com/login
+    body:
+      grantType: password
+      password: password
+      username: username
+    access_key: accessToken
 user_story_steps:
   - title: Check google up
     method: GET

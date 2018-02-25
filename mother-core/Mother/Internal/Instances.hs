@@ -31,10 +31,21 @@ instance Y.FromJSON Step where
   parseJSON _
     = fail "Missing parameter for step"
 
+instance Y.FromJSON Authentication where
+  parseJSON
+    = Y.withObject "bearer" $ \v -> do
+        url  <- v .: "url"
+        body <- v .: "body"
+        key  <- v .: "access_key"
+
+        pure $ BearerAuthentication $
+          BearerAuthenticationContent url body key
+
 instance Y.FromJSON Config where
   parseJSON (Y.Object v)
     =   Config
     <$> v .: "schedule"
+    <*> v .: "authentication"
     <*> v .: "health_checks"
     <*> v .: "user_story_steps"
 
